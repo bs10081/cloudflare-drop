@@ -9,6 +9,10 @@ npm run build:web
 # Create wrangler.toml file
 cat ./wrangler.example.toml > ./wrangler.toml
 
+# 開始寫入 [env.production] 設定
+echo -e "\n[env.production]" >> ./wrangler.toml
+echo -e "assets = { directory = \"./dist/\", binding = \"ASSETS\", html_handling = \"none\", not_found_handling = \"single-page-application\" }" >> ./wrangler.toml
+
 if [ -n "$CUSTOM_DOMAIN" ]; then
   echo "route = { pattern = \"${CUSTOM_DOMAIN}\", custom_domain = true }" >> ./wrangler.toml
 else
@@ -25,6 +29,10 @@ fi
 
 if [ -n "$R2_BUCKET_NAME" ]; then
   echo -e  "r2_buckets = [{ binding = \"FILE_BUCKET\", bucket_name = \"$R2_BUCKET_NAME\" }]" >> ./wrangler.toml
+fi
+
+if [ -n "$RATE_LIMIT" ]; then
+  echo -e  "unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }" >> ./wrangler.toml
 fi
 
 # 設定環境變數
@@ -62,12 +70,6 @@ vars="$vars VERSION = \"$VERSION\", DEPLOY_TIME = \"$DEPLOY_TIME\","
 if [ -n "$vars" ]; then
   vars=${vars%,}
   echo -e "vars = {$vars }" >> ./wrangler.toml
-fi
-
-# 添加 rate limit 設定到 production 環境
-if [ -n "$RATE_LIMIT" ]; then
-  echo -e "[env.production]" >> ./wrangler.toml
-  echo -e "unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }" >> ./wrangler.toml
 fi
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
