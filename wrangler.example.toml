@@ -1,7 +1,13 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "cloudflare-drop"
-main = "src/index.ts"
-compatibility_date = "2024-12-30"
+main = "dist/index.js"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "pnpm build"
+
+[assets]
+directory = "dist/web"
 
 [triggers]
 crons = ["*/10 * * * *"] # * * * * * = run every minute
@@ -123,10 +129,5 @@ R2_BUCKET_NAME = ""  # 本地開發時填入，覆蓋預設的 bucket 名稱
 # index_name = "my-index"
 
 [env.production]
+unsafe = { bindings = [{ name = "UPLOAD_LIMIT", type = "ratelimit", namespace_id = "1001", simple = { limit = 1, period = 10 } }] }
 assets = { directory = "./dist/", binding = "ASSETS", html_handling = "none", not_found_handling = "single-page-application" }
-
-[[env.production.unsafe.bindings]]
-name = "UPLOAD_LIMIT"
-type = "ratelimit"
-namespace_id = "1001"
-simple = { limit = 1, period = 10 }
