@@ -34,8 +34,11 @@ if [ -n "$SHARE_DURATION" ]; then
   vars="$vars SHARE_DURATION = \"$SHARE_DURATION\","
 fi
 
+# 設定檔案大小限制，預設為 25MB
 if [ -n "$SHARE_MAX_SIZE_IN_MB" ]; then
   vars="$vars SHARE_MAX_SIZE_IN_MB = \"$SHARE_MAX_SIZE_IN_MB\","
+else
+  vars="$vars SHARE_MAX_SIZE_IN_MB = \"25\","
 fi
 
 if [ -n "$R2_ACCESS_KEY_ID" ]; then
@@ -49,6 +52,11 @@ fi
 if [ -n "$R2_BUCKET_NAME" ]; then
   vars="$vars R2_BUCKET_NAME = \"$R2_BUCKET_NAME\","
 fi
+
+# 添加版本號和部署時間
+VERSION=$(git rev-parse --short HEAD)
+DEPLOY_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+vars="$vars VERSION = \"$VERSION\", DEPLOY_TIME = \"$DEPLOY_TIME\","
 
 # 如果有任何環境變數，移除最後一個逗號並寫入
 if [ -n "$vars" ]; then

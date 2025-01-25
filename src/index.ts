@@ -48,7 +48,26 @@ app.get('/*', async (c) => {
     url.port = c.env.SHARE_PORT
     return fetch(new Request(url, c.req.raw))
   }
-  return c.env.ASSETS.fetch(c.req.raw)
+
+  const response = await c.env.ASSETS.fetch(c.req.raw)
+  
+  // 只處理 HTML 回應
+  const contentType = response.headers.get('content-type')
+  if (contentType?.includes('text/html')) {
+    let text = await response.text()
+    
+    // 替換版本號和部署時間
+    text = text.replace('__VERSION__', c.env.VERSION || '開發版')
+    text = text.replace('__DEPLOY_TIME__', c.env.DEPLOY_TIME || new Date().toISOString())
+    
+    return new Response(text, {
+      headers: response.headers,
+      status: response.status,
+      statusText: response.statusText,
+    })
+  }
+  
+  return response
 })
 
 // Export the Hono app

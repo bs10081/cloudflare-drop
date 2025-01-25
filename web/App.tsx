@@ -154,6 +154,7 @@ export function App() {
       sx={{
         maxWidth: `600px !important`,
         p: 2,
+        pb: 6,
       }}
     >
       <Box className="flex justify-between" sx={{ pt: 2, pb: 2 }}>
@@ -281,6 +282,22 @@ export function App() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          py: 1,
+          opacity: 0.7,
+        }}
+      >
+        <Typography variant="caption" color="textSecondary">
+          版本：{(window as any).ENV?.VERSION || '開發版'} ({(window as any).ENV?.DEPLOY_TIME || '-'})
+        </Typography>
+      </Box>
     </Container>
   )
 }
