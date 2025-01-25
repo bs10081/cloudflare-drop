@@ -24,7 +24,9 @@ if [ -n "$R2_BUCKET_NAME" ]; then
 fi
 
 if [ -n "$RATE_LIMIT" ]; then
-  echo -e  "unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }" >> ./wrangler.toml
+  rate_limit_config="unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }"
+  echo -e "$rate_limit_config" >> ./wrangler.toml
+  echo -e "[env.production]\n$rate_limit_config" >> ./wrangler.toml
 fi
 
 # 設定環境變數
@@ -63,10 +65,12 @@ npm run generate
 npm run build:web
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
-  # 嘗試執行遷移，如果失敗則重置資料庫後重試
+  # 嘗試執行遷移
   if ! yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production; then
-    echo "Migration failed, trying to reset database and reapply migrations..."
-    yes | npx wrangler d1 migrations reset "$D1_NAME" --remote --env production
+    echo "Migration failed, trying to clean up and reapply migrations..."
+    # 刪除資料庫
+    yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
+    # 重新應用遷移
     yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production
   fi
 fi
