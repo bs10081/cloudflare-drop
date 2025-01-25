@@ -5,28 +5,40 @@ set +e
 # Create wrangler.toml file
 cat ./wrangler.example.toml > ./wrangler.toml
 
+# 準備根層級和 production 環境的設定
+root_config=""
+prod_config="[env.production]\n"
+
 if [ -n "$CUSTOM_DOMAIN" ]; then
-  echo "route = { pattern = \"${CUSTOM_DOMAIN}\", custom_domain = true }" >> ./wrangler.toml
+  root_config="${root_config}route = { pattern = \"${CUSTOM_DOMAIN}\", custom_domain = true }\n"
+  prod_config="${prod_config}route = { pattern = \"${CUSTOM_DOMAIN}\", custom_domain = true }\n"
 else
-  echo  "workers_dev = true" >> ./wrangler.toml
+  root_config="${root_config}workers_dev = true\n"
+  prod_config="${prod_config}workers_dev = true\n"
 fi
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
-  echo -e "d1_databases = [{ binding = \"DB\", database_name = \"$D1_NAME\", database_id = \"$D1_ID\", migrations_dir = \"data/migrations\" }]" >> ./wrangler.toml
+  db_config="d1_databases = [{ binding = \"DB\", database_name = \"$D1_NAME\", database_id = \"$D1_ID\", migrations_dir = \"data/migrations\" }]"
+  root_config="${root_config}${db_config}\n"
+  prod_config="${prod_config}${db_config}\n"
 fi
 
 if [ -n "$KV_ID" ]; then
-  echo -e  "kv_namespaces = [{ binding = \"file_drops\", id = \"$KV_ID\" }]" >> ./wrangler.toml
+  kv_config="kv_namespaces = [{ binding = \"file_drops\", id = \"$KV_ID\" }]"
+  root_config="${root_config}${kv_config}\n"
+  prod_config="${prod_config}${kv_config}\n"
 fi
 
 if [ -n "$R2_BUCKET_NAME" ]; then
-  echo -e  "r2_buckets = [{ binding = \"FILE_BUCKET\", bucket_name = \"$R2_BUCKET_NAME\" }]" >> ./wrangler.toml
+  r2_config="r2_buckets = [{ binding = \"FILE_BUCKET\", bucket_name = \"$R2_BUCKET_NAME\" }]"
+  root_config="${root_config}${r2_config}\n"
+  prod_config="${prod_config}${r2_config}\n"
 fi
 
 if [ -n "$RATE_LIMIT" ]; then
   rate_limit_config="unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }"
-  echo -e "$rate_limit_config" >> ./wrangler.toml
-  echo -e "[env.production]\n$rate_limit_config" >> ./wrangler.toml
+  root_config="${root_config}${rate_limit_config}\n"
+  prod_config="${prod_config}${rate_limit_config}\n"
 fi
 
 # 設定環境變數
@@ -58,10 +70,13 @@ fi
 # 如果有任何環境變數，移除最後一個逗號並寫入
 if [ "$vars_line" != "vars = {" ]; then
   vars_line="${vars_line%,} }"
-  echo -e "$vars_line" >> ./wrangler.toml
-  # 同時寫入到 production 環境
-  echo -e "[env.production]\n$vars_line" >> ./wrangler.toml
+  root_config="${root_config}${vars_line}\n"
+  prod_config="${prod_config}${vars_line}\n"
 fi
+
+# 寫入所有設定
+echo -e "$root_config" >> ./wrangler.toml
+echo -e "$prod_config" >> ./wrangler.toml
 
 # Build web
 npm run build:web
