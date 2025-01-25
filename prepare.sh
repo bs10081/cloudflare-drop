@@ -32,7 +32,11 @@ if [ -n "$R2_BUCKET_NAME" ]; then
 fi
 
 if [ -n "$RATE_LIMIT" ]; then
-  echo -e  "unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }" >> ./wrangler.toml
+  echo -e  "[[env.production.unsafe.bindings]]" >> ./wrangler.toml
+  echo -e  "name = \"UPLOAD_LIMIT\"" >> ./wrangler.toml
+  echo -e  "type = \"ratelimit\"" >> ./wrangler.toml
+  echo -e  "namespace_id = \"1001\"" >> ./wrangler.toml
+  echo -e  "simple = { limit = 1, period = 10 }" >> ./wrangler.toml
 fi
 
 # 設定環境變數
