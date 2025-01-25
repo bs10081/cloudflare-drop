@@ -4,7 +4,7 @@ set +e
 
 # Build web first
 echo "Building web application..."
-npm run build:web
+pnpm run build:web
 
 # Create wrangler.toml file
 cat ./wrangler.example.toml > ./wrangler.toml
@@ -74,11 +74,11 @@ fi
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
   # 重置資料庫
-  yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
+  yes | pnpm exec wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
   
   # 應用所有遷移
   for migration in data/migrations/*.sql; do
     echo "Applying migration: $migration"
-    yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --file="$migration"
+    yes | pnpm exec wrangler d1 execute "$D1_NAME" --remote --env production --file="$migration"
   done
 fi
