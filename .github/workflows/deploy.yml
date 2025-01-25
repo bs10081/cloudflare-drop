@@ -12,19 +12,16 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: 'npm'
       
       # 安裝依賴
-      - run: pnpm install
+      - run: npm install
       
-      # 建置應用程式
-      - run: pnpm build
+      # 建置前端
+      - run: npm run build:web
       
       # 準備部署
       - run: bash prepare.sh
