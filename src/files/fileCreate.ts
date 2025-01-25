@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import mine from 'mime'
-import { createId, init } from '@paralleldrive/cuid2'
+import { createId } from '@paralleldrive/cuid2'
 import { z } from 'zod'
 import dayjs, { ManipulateType } from 'dayjs'
 import { inArray } from 'drizzle-orm'
@@ -8,9 +8,8 @@ import { inArray } from 'drizzle-orm'
 import { Endpoint } from '../endpoint'
 import { files, InsertFileType } from '../../data/schemas'
 
-const duration = ['day', 'week', 'month', 'year', 'hour', 'minute']
-
 function resolveDuration(str: string): [number, ManipulateType] {
+  const duration = ['day', 'week', 'month', 'year', 'hour', 'minute']
   const match = new RegExp(`^(\\d+)(${duration.join('|')})$`).exec(str)
   if (!match) {
     return [1, 'hour']
@@ -75,10 +74,9 @@ export class FileCreate extends Endpoint {
     }
 
     const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
-    const max = Number.isNaN(envMax) || envMax <= 0 ? 10 : envMax
-
-    if (size > max * 1024 * 1024) {
-      return this.error(`檔案大於 ${max}M`)
+    const kvLimit = Math.min((envMax || 10), 25) * 1024 * 1024 // 不能超過 25MB
+    if (size > kvLimit) {
+      return this.error(`檔案大於 ${kvLimit / 1024 / 1024}MB，請使用分片上傳`)
     }
 
     const kv = this.getKV(c)
@@ -88,7 +86,7 @@ export class FileCreate extends Endpoint {
 
     const db = this.getDB(c)
 
-    const shareCodeCreate = init({
+    const shareCodeCreate = createId.init({
       length: 6,
     })
 
@@ -121,6 +119,8 @@ export class FileCreate extends Endpoint {
       hash,
       code: shareCode,
       due_date: dueDate,
+      size,
+      storage_type: 'kv',
     }
 
     const [record] = await db.insert(files).values(insert).returning({
@@ -129,10 +129,6 @@ export class FileCreate extends Endpoint {
       due_date: files.due_date,
     })
 
-    return {
-      message: 'ok',
-      result: true,
-      data: record,
-    }
+    return this.success(record)
   }
 }

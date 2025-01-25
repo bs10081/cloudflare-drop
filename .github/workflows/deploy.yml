@@ -25,6 +25,8 @@ jobs:
           SHARE_MAX_SIZE_IN_MB: ${{ vars.SHARE_MAX_SIZE_IN_MB }}
           RATE_LIMIT: ${{ vars.RATE_LIMIT }}
           SHARE_DURATION: ${{ vars.SHARE_DURATION }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

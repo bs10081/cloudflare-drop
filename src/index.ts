@@ -1,7 +1,7 @@
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { dbMiddleware, limitMiddleware } from './middlewares'
-import { FileCreate, FileFetch, FileShareCodeFetch } from './files'
+import { FileCreate, FileFetch, FileShareCodeFetch, FileChunkCreate } from './files'
 
 import { scheduled } from './scheduled'
 
@@ -21,6 +21,7 @@ const openapi = fromHono(app, {
 })
 
 openapi.put('/files', FileCreate)
+openapi.put('/files/chunk', FileChunkCreate)
 openapi.get('/files/:id', FileFetch)
 openapi.get('/files/share/:code', FileShareCodeFetch)
 

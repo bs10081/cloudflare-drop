@@ -2,6 +2,7 @@
 
 interface Env {
   file_drops: KVNamespace
+  FILE_BUCKET: R2Bucket
   ENVIRONMENT: string
   SHARE_PORT: string
   SHARE_MAX_SIZE_IN_MB: string
