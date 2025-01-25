@@ -58,19 +58,12 @@ if [ "$vars_line" != "vars = {" ]; then
   echo -e "$vars_line" >> ./wrangler.toml
 fi
 
-# Generate migration
-npm run generate
-
 # Build web
 npm run build:web
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
-  # 嘗試執行遷移
-  if ! yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production; then
-    echo "Migration failed, trying to clean up and reapply migrations..."
-    # 刪除資料庫
-    yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
-    # 重新應用遷移
-    yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production
-  fi
+  # 刪除資料庫
+  yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
+  # 應用基礎遷移
+  yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production
 fi
