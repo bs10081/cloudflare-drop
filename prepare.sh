@@ -2,16 +2,8 @@
 
 set +e
 
-# Build web first
-echo "Building web application..."
-pnpm run build:web
-
 # Create wrangler.toml file
 cat ./wrangler.example.toml > ./wrangler.toml
-
-# 開始寫入 [env.production] 設定
-echo -e "\n[env.production]" >> ./wrangler.toml
-echo -e "assets = { directory = \"./dist/\", binding = \"ASSETS\", html_handling = \"none\", not_found_handling = \"single-page-application\" }" >> ./wrangler.toml
 
 if [ -n "$CUSTOM_DOMAIN" ]; then
   echo "route = { pattern = \"${CUSTOM_DOMAIN}\", custom_domain = true }" >> ./wrangler.toml
@@ -32,11 +24,7 @@ if [ -n "$R2_BUCKET_NAME" ]; then
 fi
 
 if [ -n "$RATE_LIMIT" ]; then
-  echo -e  "[[env.production.unsafe.bindings]]" >> ./wrangler.toml
-  echo -e  "name = \"UPLOAD_LIMIT\"" >> ./wrangler.toml
-  echo -e  "type = \"ratelimit\"" >> ./wrangler.toml
-  echo -e  "namespace_id = \"1001\"" >> ./wrangler.toml
-  echo -e  "simple = { limit = 1, period = 10 }" >> ./wrangler.toml
+  echo -e  "unsafe = { bindings = [{ name = \"UPLOAD_LIMIT\", type = \"ratelimit\", namespace_id = \"1001\", simple = { limit = 1, period = 10 } }] }" >> ./wrangler.toml
 fi
 
 # 設定環境變數
@@ -76,13 +64,16 @@ if [ -n "$vars" ]; then
   echo -e "vars = {$vars }" >> ./wrangler.toml
 fi
 
+# Build web
+npm run build:web
+
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
   # 重置資料庫
-  yes | pnpm exec wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
+  yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
   
   # 應用所有遷移
   for migration in data/migrations/*.sql; do
     echo "Applying migration: $migration"
-    yes | pnpm exec wrangler d1 execute "$D1_NAME" --remote --env production --file="$migration"
+    yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --file="$migration"
   done
 fi
