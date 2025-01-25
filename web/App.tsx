@@ -161,7 +161,7 @@ export function App() {
           Cloudflare Drop
         </Typography>
         <IconButton
-          href="https://github.com/oustn/cloudflare-drop"
+          href="https://github.com/bs10081/cloudflare-drop"
           target="_blank"
         >
           <Github />

@@ -62,7 +62,7 @@
     "wrangler": "^3.100.0"
   },
   "repository": {
-    "url": "https://github.com/oustn/cloudflare-drop"
+    "url": "https://github.com/bs10081/cloudflare-drop"
   },
   "volta": {
     "node": "20.18.1",
