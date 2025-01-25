@@ -12,19 +12,14 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
         with:
-          node-version: 20
-          cache: 'npm'
-      
-      # 安裝依賴
-      - run: npm install
-      
-      # 建置前端
-      - run: npm run build:web
-      
-      # 準備部署
-      - run: bash prepare.sh
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          preCommands: ./prepare.sh
+          packageManager: npm
+          command: deploy --env production
         env:
           D1_NAME: ${{ secrets.D1_NAME }}
           D1_ID: ${{ secrets.D1_ID }}
@@ -36,10 +31,3 @@ jobs:
           SHARE_MAX_SIZE_IN_MB: ${{ vars.SHARE_MAX_SIZE_IN_MB }}
           SHARE_DURATION: ${{ vars.SHARE_DURATION }}
           RATE_LIMIT: ${{ vars.RATE_LIMIT }}
-      
-      # 部署到 Cloudflare Workers
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env production
