@@ -2,12 +2,14 @@
 
 set +e
 
-# Create wrangler.toml file
-cat ./wrangler.example.toml > ./wrangler.toml
+# 建立全新的 wrangler.toml，只保留基本設定
+echo "name = \"cloudflare-drop\"" > ./wrangler.toml
+echo "main = \"src/index.ts\"" >> ./wrangler.toml
+echo "compatibility_date = \"2024-01-01\"" >> ./wrangler.toml
 
 # 準備根層級和 production 環境的設定
 root_config=""
-prod_config="[env.production]\n"
+prod_config="\n[env.production]\n"
 
 if [ -n "$CUSTOM_DOMAIN" ]; then
   root_config="${root_config}route = { pattern = \"${CUSTOM_DOMAIN}\", custom_domain = true }\n"
