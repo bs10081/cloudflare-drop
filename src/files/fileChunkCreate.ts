@@ -61,8 +61,8 @@ export class FileChunkCreate extends Endpoint {
     if (chunkNumber === 1 && !uploadId) {
       const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
       const kvLimit = Math.min((envMax || 10), 25) * 1024 * 1024 // 不能超過 25MB
-      if (totalSize <= kvLimit) {
-        return this.error(`檔案大小小於等於 ${kvLimit / 1024 / 1024}MB，請使用一般上傳`)
+      if (totalSize < kvLimit) {
+        return this.error(`檔案大小小於 ${kvLimit / 1024 / 1024}MB，請使用一般上傳（KV 儲存）`)
       }
 
       const result = await this.initializeUpload(c, filename, totalSize)

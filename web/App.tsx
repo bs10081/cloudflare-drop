@@ -112,11 +112,6 @@ export function App() {
   const handleFileChange = (e: InputEvent) => {
     const target: HTMLInputElement = e.target as HTMLInputElement
     const file = target?.files?.[0] ?? null
-    if (file && file.size > MAX_SIZE * 1024 * 1024) {
-      message.error(`檔案大於 ${MAX_SIZE}M`)
-      ;(e.target as HTMLInputElement).value = ''
-      return
-    }
     setFile(file)
   }
 
