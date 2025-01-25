@@ -64,8 +64,7 @@ if [ -n "$vars" ]; then
   echo -e "vars = {$vars }" >> ./wrangler.toml
 fi
 
-# 安裝依賴並建置
-npm install --legacy-peer-deps
+# Build web
 npm run build:web
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
