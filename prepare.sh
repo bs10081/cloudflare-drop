@@ -2,6 +2,10 @@
 
 set +e
 
+# Build web first
+echo "Building web application..."
+npm run build:web
+
 # Create wrangler.toml file
 cat ./wrangler.example.toml > ./wrangler.toml
 
@@ -63,9 +67,6 @@ if [ -n "$vars" ]; then
   vars=${vars%,}
   echo -e "vars = {$vars }" >> ./wrangler.toml
 fi
-
-# Build web
-npm run build:web
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
   # 重置資料庫
