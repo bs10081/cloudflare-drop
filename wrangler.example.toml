@@ -102,12 +102,13 @@ id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#r2-buckets
 [[r2_buckets]]
 binding = "FILE_BUCKET"
-bucket_name = "file-drops"
+bucket_name = "file-drops"  # 預設值，可以透過環境變數 R2_BUCKET_NAME 覆蓋
 
 # 如果需要在本地開發時使用 R2，需要加入以下設定
 [vars]
 R2_ACCESS_KEY_ID = ""  # 本地開發時填入
 R2_SECRET_ACCESS_KEY = ""  # 本地開發時填入
+R2_BUCKET_NAME = ""  # 本地開發時填入，覆蓋預設的 bucket 名稱
 
 # Bind another Worker service. Use this binding to call another Worker without network overhead.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
