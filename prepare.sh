@@ -36,8 +36,11 @@ if [ -n "$SHARE_DURATION" ]; then
   vars_line="$vars_line SHARE_DURATION = \"$SHARE_DURATION\","
 fi
 
+# 如果沒有設定 SHARE_MAX_SIZE_IN_MB，使用預設值 25
 if [ -n "$SHARE_MAX_SIZE_IN_MB" ]; then
   vars_line="$vars_line SHARE_MAX_SIZE_IN_MB = \"$SHARE_MAX_SIZE_IN_MB\","
+else
+  vars_line="$vars_line SHARE_MAX_SIZE_IN_MB = \"25\","
 fi
 
 if [ -n "$R2_ACCESS_KEY_ID" ]; then
@@ -56,6 +59,8 @@ fi
 if [ "$vars_line" != "vars = {" ]; then
   vars_line="${vars_line%,} }"
   echo -e "$vars_line" >> ./wrangler.toml
+  # 同時寫入到 production 環境
+  echo -e "[env.production]\n$vars_line" >> ./wrangler.toml
 fi
 
 # Build web
