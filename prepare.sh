@@ -56,12 +56,16 @@ if [ -n "$vars" ]; then
   echo -e "vars = {$vars }" >> ./wrangler.toml
 fi
 
-# Generate migration
-npm run generate
-
 # Build web
 npm run build:web
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
-  yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production
+  # 重置資料庫
+  yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --command "DROP TABLE IF EXISTS chunks; DROP TABLE IF EXISTS files;"
+  
+  # 應用所有遷移
+  for migration in data/migrations/*.sql; do
+    echo "Applying migration: $migration"
+    yes | npx wrangler d1 execute "$D1_NAME" --remote --env production --file="$migration"
+  done
 fi
