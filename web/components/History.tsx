@@ -157,7 +157,7 @@ export const History = observer(({ onItemClick }: HistoryProps) => {
               primary={
                 <Typography>
                   {item.type === 'shared' ? '分享' : '接收'}了
-                  {item.file ? '文件' : '文本'}，分享码 {item.code}，点击查看
+                  {item.file ? '檔案' : '文字'}，分享碼 {item.code}，點擊檢視
                 </Typography>
               }
               secondary={

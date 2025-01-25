@@ -71,14 +71,14 @@ export class FileCreate extends Endpoint {
     }
 
     if (!data || data.byteLength === 0) {
-      return this.error('分享内容为空')
+      return this.error('分享內容為空')
     }
 
     const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
     const max = Number.isNaN(envMax) || envMax <= 0 ? 10 : envMax
 
     if (size > max * 1024 * 1024) {
-      return this.error(`文件大于 ${max}M`)
+      return this.error(`檔案大於 ${max}M`)
     }
 
     const kv = this.getKV(c)
@@ -108,7 +108,7 @@ export class FileCreate extends Endpoint {
     const shareCode = shareCodes.find((d) => !records.includes(d))
 
     if (!shareCode) {
-      return this.error('分享码生成失败，请重试')
+      return this.error('分享碼產生失敗，請重試')
     }
 
     const [due, dueType] = resolveDuration(c.env.SHARE_DURATION)

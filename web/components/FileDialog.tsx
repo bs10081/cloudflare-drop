@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import zh from 'dayjs/locale/zh-cn'
+import zh from 'dayjs/locale/zh-tw'
 
 import { fetchPlainText } from '../api'
 import { copyToClipboard } from '../common'
@@ -34,10 +34,10 @@ export function FileDialog({
   const handleCopy = (str: string) => {
     copyToClipboard(str)
       .then(() => {
-        payload.message.success('复制成功')
+        payload.message.success('複製成功')
       })
       .catch(() => {
-        payload.message.success('复制失败')
+        payload.message.success('複製失敗')
       })
   }
 
@@ -54,7 +54,7 @@ export function FileDialog({
     <BasicDialog
       open={open}
       onClose={onClose}
-      title={isText ? '文本分享' : '文件分享'}
+      title={isText ? '文字分享' : '檔案分享'}
     >
       <Box>
         {isText && (
@@ -86,7 +86,7 @@ export function FileDialog({
                 },
               })}
             >
-              复制
+              複製
             </Button>
           </Box>
         )}
@@ -108,15 +108,15 @@ export function FileDialog({
                 },
               })}
             >
-              下载
+              下載
             </Button>
           </Box>
         )}
         <Box sx={{ mt: 2 }}>
           <Typography variant="body2" color="textDisabled">
-            原始分享 SHA1 Hash 值{' '}
+            原始分享 SHA1 雜湊值{' '}
             <a target="_blank" href="https://www.lzltool.com/data-hash">
-              (校验工具)
+              (校驗工具)
             </a>
             {'：'}
           </Typography>
@@ -128,7 +128,7 @@ export function FileDialog({
             {payload.hash}
           </Typography>
           <Typography className="mt-1" variant="body2" color="textDisabled">
-            预计过期于：
+            預計過期於：
           </Typography>
           <Typography className="mt-1" variant="body2">
             {dayjs(payload.due_date).fromNow()}

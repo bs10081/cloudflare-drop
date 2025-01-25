@@ -1,55 +1,55 @@
 # Cloudflare Drop
 
-基于 Cloudflare Worker、D1Database 和 KV 实现的轻量级文件分享工具。
+基於 Cloudflare Worker、D1Database 和 KV 實作的輕量級檔案分享工具。
 
 <img src="assets/IMG_5810.png" width="200">
 <img src="assets/IMG_5811.png" width="200">
 <img src="assets/IMG_5812.png" width="200">
 <img src="assets/IMG_5813.png" width="200">
 
-## 自动部署
+## 自動部署
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/oustn/cloudflare-drop)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/bs10081/cloudflare-drop)
 
-1. 点击按钮，跳转到自动部署页面
-2. 根据页面指引，关联 GitHub & Cloudflare，配置 Cloudflare Account ID & API Key
-3. Fork 仓库
-4. 开启 Action
+1. 點擊按鈕，跳轉至自動部署頁面
+2. 依照頁面指引，關聯 GitHub & Cloudflare，設定 Cloudflare Account ID & API Key
+3. Fork 儲存庫
+4. 開啟 Action
 5. 部署
 
-> 创建 Cloudflare API Key 时，如果使用 worker 模板创建，请记得添加 D1 的编辑权限。
+> 建立 Cloudflare API Key 時，如果使用 worker 範本建立，請記得加入 D1 的編輯權限。
 
-## 配置 GitHub Action Secret
+## 設定 GitHub Action Secret
 
-1. 在初次部署完成后，还需要创建 [D1Database](https://developers.cloudflare.com/d1/get-started/#2-create-a-database) & [KV](https://developers.cloudflare.com/kv/get-started/#2-create-a-kv-namespace)，参考对应文档。
-2. 配置 Secret：在 forked 的仓库 -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**
-3. 配置以下 Secret：
-   - CUSTOM_DOMAIN （可选，域名，如 drop.example.cn）
+1. 在初次部署完成後，還需要建立 [D1Database](https://developers.cloudflare.com/d1/get-started/#2-create-a-database) & [KV](https://developers.cloudflare.com/kv/get-started/#2-create-a-kv-namespace)，請參考對應文件。
+2. 設定 Secret：在已 fork 的儲存庫中 -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**
+3. 設定以下 Secret：
+   - CUSTOM_DOMAIN （選填，網域名稱，例如 drop.example.cn）
    - D1_ID (D1Database ID)
    - D1_NAME (D1Database Name)
    - KV_ID (KV Namespace ID)
-4. 重新运行 Github Actions
+4. 重新執行 Github Actions
 
-## 其他配置
+## 其他設定
 
-### 文件大小限制
+### 檔案大小限制
 
-默认文件限制为 10M，可以通过添加 Action 变量来修改。
+預設檔案限制為 10M，可以透過新增 Action 變數來修改。
 
-新增 `SHARE_MAX_SIZE_IN_MB` Action 变量，值为最大允许的 MB 数字，例如 20，配置路径：在 forked 的仓库 -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository variable**
+新增 `SHARE_MAX_SIZE_IN_MB` Action 變數，值為最大允許的 MB 數字，例如 20，設定路徑：在已 fork 的儲存庫中 -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository variable**
 
-### 分享过期时间配置
+### 分享過期時間設定
 
-分享默认有效期是一个小时，可以通过添加 Action 变量来修改。
+分享預設有效期為一小時，可以透過新增 Action 變數來修改。
 
-新增 `SHARE_DURATION` Action 变量，配置格式为 `数值+单位`，比如 (5minute)，支持的单位有 `minute`, `hour`, `day`, `week`, `month`, `year`
+新增 `SHARE_DURATION` Action 變數，設定格式為 `數值+單位`，例如 (5minute)，支援的單位有 `minute`, `hour`, `day`, `week`, `month`, `year`
 
-### 新增 IP 上传频率限制
+### 新增 IP 上傳頻率限制
 
-默认无限制，可以通过添加 Action 变量来修改。
+預設無限制，可以透過新增 Action 變數來修改。
 
-新增 `RATE_LIMIT` Action 变量，值为每 10s 可请求数，比如 10
+新增 `RATE_LIMIT` Action 變數，值為每 10 秒可請求數，例如 10
 
-## 过期清理
+## 過期清理
 
-Worker 添加了一个 10 分钟的定时任务，自动清理过期的 KV 存储和 D1 中的记录。
+Worker 新增了一個 10 分鐘的定時任務，自動清理過期的 KV 儲存和 D1 中的記錄。

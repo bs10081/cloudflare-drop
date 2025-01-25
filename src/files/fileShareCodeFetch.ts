@@ -50,12 +50,12 @@ export class FileShareCodeFetch extends Endpoint {
       .from(files)
       .where(eq(files.code, code))
     if (!file) {
-      return this.error('分享码无效')
+      return this.error('分享碼無效')
     }
 
     const day = dayjs(file.due_date)
     if (day.isBefore(dayjs())) {
-      return this.error('分享已过期')
+      return this.error('分享已過期')
     }
 
     return this.success(file)

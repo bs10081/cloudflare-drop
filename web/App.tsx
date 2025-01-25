@@ -88,7 +88,7 @@ export function App() {
         message.error(data.message)
         return
       }
-      // 打开弹窗
+      // 開啟對話框
       historyApi.insertReceived(
         data.data.code,
         data.data.type !== 'plain/string',
@@ -113,7 +113,7 @@ export function App() {
     const target: HTMLInputElement = e.target as HTMLInputElement
     const file = target?.files?.[0] ?? null
     if (file && file.size > MAX_SIZE * 1024 * 1024) {
-      message.error(`文件大于 ${MAX_SIZE}M`)
+      message.error(`檔案大於 ${MAX_SIZE}M`)
       ;(e.target as HTMLInputElement).value = ''
       return
     }
@@ -181,7 +181,7 @@ export function App() {
           >
             <InputLabel>
               <Typography variant="h4" align="left">
-                分享码：
+                分享碼：
               </Typography>
             </InputLabel>
             <Code
@@ -205,8 +205,8 @@ export function App() {
                   onChange={handleChangeTab}
                   aria-label="lab API tabs example"
                 >
-                  <Tab label="文本分享" value="text" />
-                  <Tab label="文件分享" value="file" />
+                  <Tab label="文字分享" value="text" />
+                  <Tab label="檔案分享" value="file" />
                 </TabList>
               </Box>
               <TabPanel value="text" sx={{ height: 270, pl: 0, pr: 0 }}>
@@ -228,7 +228,7 @@ export function App() {
                     tabIndex={-1}
                     startIcon={<CloudUploadIcon />}
                   >
-                    选择文件
+                    選擇檔案
                     <VisuallyHiddenInput
                       type="file"
                       onChange={handleFileChange}

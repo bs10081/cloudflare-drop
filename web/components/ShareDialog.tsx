@@ -4,7 +4,7 @@ import Box from '@mui/material/Box'
 // import DialogActions from '@mui/material/DialogActions'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import zh from 'dayjs/locale/zh-cn'
+import zh from 'dayjs/locale/zh-tw'
 import QrCode from 'qrcode-svg'
 
 import { copyToClipboard } from '../common'
@@ -31,7 +31,7 @@ export function ShareDialog({
   }
 >) {
   const url = `${window.location.protocol}//${window.location.host}?code=${payload.code}`
-  const desc = `链接: ${url} 提取码: ${payload.code} SHA1 Hash 值: ${payload.hash}`
+  const desc = `連結: ${url} 提取碼: ${payload.code} SHA1 雜湊值: ${payload.hash}`
   const qr = useRef(
     new QrCode({
       content: url,
@@ -41,10 +41,10 @@ export function ShareDialog({
   const handleCopy = (str: string) => {
     copyToClipboard(str)
       .then(() => {
-        payload.message.success('复制成功')
+        payload.message.success('複製成功')
       })
       .catch(() => {
-        payload.message.success('复制失败')
+        payload.message.success('複製失敗')
       })
   }
 
@@ -102,15 +102,15 @@ export function ShareDialog({
               },
             })}
           >
-            复制
+            複製
           </Button>
         </Box>
 
         <Box sx={{ mt: 2 }}>
           <Typography variant="body2" color="textDisabled">
-            原始分享 SHA1 Hash 值{' '}
+            原始分享 SHA1 雜湊值{' '}
             <a target="_blank" href="https://www.lzltool.com/data-hash">
-              (校验工具)
+              (校驗工具)
             </a>
             {'：'}
           </Typography>
@@ -122,7 +122,7 @@ export function ShareDialog({
             {payload.hash}
           </Typography>
           <Typography className="mt-1" variant="body2" color="textDisabled">
-            预计过期于：
+            預計過期於：
           </Typography>
           <Typography className="mt-1" variant="body2">
             {dayjs(payload.due_date).fromNow()}
