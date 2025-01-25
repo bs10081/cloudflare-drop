@@ -63,5 +63,10 @@ npm run generate
 npm run build:web
 
 if [ -n "$D1_ID" ] && [ -n "$D1_NAME" ]; then
-  yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production
+  # 嘗試執行遷移，如果失敗則重置資料庫後重試
+  if ! yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production; then
+    echo "Migration failed, trying to reset database and reapply migrations..."
+    yes | npx wrangler d1 migrations reset "$D1_NAME" --remote --env production
+    yes | npx wrangler d1 migrations apply "$D1_NAME" --remote --env production
+  fi
 fi

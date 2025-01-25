@@ -1,4 +1,4 @@
-ALTER TABLE `files` ADD COLUMN `size` integer NOT NULL;
+ALTER TABLE `files` ADD COLUMN `size` integer NOT NULL DEFAULT 0;
 ALTER TABLE `files` ADD COLUMN `storage_type` text NOT NULL DEFAULT 'kv';
 
 CREATE TABLE `chunks` (
