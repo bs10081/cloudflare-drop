@@ -9,7 +9,7 @@ const wranglerVersion = execSync('wrangler --version').toString().trim().split('
 const buildTime = new Date().toISOString();
 
 // 讀取版本檔案
-const versionPath = path.join(__dirname, '../dist/version.js');
+const versionPath = path.join(__dirname, '../web/dist/version.js');
 let content = fs.readFileSync(versionPath, 'utf8');
 
 // 替換佔位符
