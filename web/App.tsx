@@ -45,9 +45,6 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 })
 
-const envMax = Number.parseInt(import.meta.env.SHARE_MAX_SIZE_IN_MB, 10)
-const MAX_SIZE = Number.isNaN(envMax) || envMax <= 0 ? 10 : envMax
-
 export function App() {
   const [tab, setTab] = useState('text')
   const [messageProps, message] = useMessage()
