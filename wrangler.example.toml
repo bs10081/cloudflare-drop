@@ -136,4 +136,4 @@ simple = { limit = 1, period = 10 }
 
 [env.production]
 unsafe = { bindings = [{ name = "UPLOAD_LIMIT", type = "ratelimit", namespace_id = "1001", simple = { limit = 1, period = 10 } }] }
-assets = { directory = "dist/web", binding = "ASSETS", html_handling = "none", not_found_handling = "single-page-application" }
+assets = { directory = "dist", binding = "ASSETS", html_handling = "none", not_found_handling = "single-page-application" }
