@@ -30,6 +30,7 @@ import {
   historyApi,
   History,
 } from './components'
+import { Footer } from './components/Footer'
 import './app.css'
 import { resolveFileByCode, uploadFile } from './api'
 
@@ -149,138 +150,140 @@ export function App() {
   }
 
   return (
-    <Container
-      className="ml-auto mr-auto"
-      sx={{
-        maxWidth: `600px !important`,
-        p: 2,
-      }}
-    >
-      <Box className="flex justify-between" sx={{ pt: 2, pb: 2 }}>
-        <Typography variant="h3" color="primary">
-          Cloudflare Drop
-        </Typography>
-        <IconButton
-          href="https://github.com/bs10081/cloudflare-drop"
-          target="_blank"
-        >
-          <Github />
-        </IconButton>
-      </Box>
-      <Paper elevation={6}>
-        <Container className="flex flex-col" sx={{ p: 2 }}>
+    <Box sx={{ pb: 6 }}>
+      <Container maxWidth="md">
+        <Box sx={{ my: 4 }}>
           <Box
-            className="flex gap-2"
-            sx={(theme) => ({
+            sx={{
+              display: 'flex',
               alignItems: 'center',
-              [theme.breakpoints.down('sm')]: {
-                flexDirection: 'column',
-                alignItems: 'start',
-              },
-            })}
+              justifyContent: 'space-between',
+              mb: 2,
+            }}
           >
-            <InputLabel>
-              <Typography variant="h4" align="left">
-                分享碼：
-              </Typography>
-            </InputLabel>
-            <Code
-              length={6}
-              onChange={handleResolveFile.current}
-              value={code}
-            />
+            <Typography variant="h4" component="h1" gutterBottom>
+              Cloudflare Drop
+            </Typography>
+            <Github />
           </Box>
+          <Paper elevation={6}>
+            <Container className="flex flex-col" sx={{ p: 2 }}>
+              <Box
+                className="flex gap-2"
+                sx={(theme) => ({
+                  alignItems: 'center',
+                  [theme.breakpoints.down('sm')]: {
+                    flexDirection: 'column',
+                    alignItems: 'start',
+                  },
+                })}
+              >
+                <InputLabel>
+                  <Typography variant="h4" align="left">
+                    分享碼：
+                  </Typography>
+                </InputLabel>
+                <Code
+                  length={6}
+                  onChange={handleResolveFile.current}
+                  value={code}
+                />
+              </Box>
+
+              <Divider
+                sx={{
+                  mt: 2,
+                  mb: 2,
+                }}
+              />
+
+              <Box sx={{ width: '100%', typography: 'body1' }}>
+                <TabContext value={tab}>
+                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <TabList
+                      onChange={handleChangeTab}
+                      aria-label="lab API tabs example"
+                    >
+                      <Tab label="文字分享" value="text" />
+                      <Tab label="檔案分享" value="file" />
+                    </TabList>
+                  </Box>
+                  <TabPanel value="text" sx={{ height: 270, pl: 0, pr: 0 }}>
+                    <TextField
+                      multiline
+                      fullWidth
+                      rows={10}
+                      value={text}
+                      onInput={handleTextInput}
+                    />
+                  </TabPanel>
+                  <TabPanel value="file" sx={{ height: 270, pl: 0, pr: 0 }}>
+                    <Box className="flex">
+                      <Button
+                        className="shrink-0"
+                        component="label"
+                        role={undefined}
+                        variant="contained"
+                        tabIndex={-1}
+                        startIcon={<CloudUploadIcon />}
+                      >
+                        選擇檔案
+                        <VisuallyHiddenInput
+                          type="file"
+                          onChange={handleFileChange}
+                        />
+                      </Button>
+                      {file && (
+                        <div class="flex flex-col ml-2 min-w-0">
+                          <FileIcon fontSize="small" color="disabled" />
+                          <Typography color="textDisabled" noWrap lineHeight="16px">
+                            {file.name}
+                          </Typography>
+                        </div>
+                      )}
+                    </Box>
+                  </TabPanel>
+                </TabContext>
+              </Box>
+              <Box className="flex flex-row-reverse">
+                <Button
+                  variant="contained"
+                  disabled={(tab === 'text' && !text) || (tab === 'file' && !file)}
+                  endIcon={<SendIcon />}
+                  sx={{
+                    pl: 3,
+                    pr: 3,
+                  }}
+                  onClick={handleShare}
+                >
+                  分享
+                </Button>
+              </Box>
+            </Container>
+          </Paper>
 
           <Divider
             sx={{
-              mt: 2,
+              mt: 4,
               mb: 2,
             }}
           />
 
-          <Box sx={{ width: '100%', typography: 'body1' }}>
-            <TabContext value={tab}>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <TabList
-                  onChange={handleChangeTab}
-                  aria-label="lab API tabs example"
-                >
-                  <Tab label="文字分享" value="text" />
-                  <Tab label="檔案分享" value="file" />
-                </TabList>
-              </Box>
-              <TabPanel value="text" sx={{ height: 270, pl: 0, pr: 0 }}>
-                <TextField
-                  multiline
-                  fullWidth
-                  rows={10}
-                  value={text}
-                  onInput={handleTextInput}
-                />
-              </TabPanel>
-              <TabPanel value="file" sx={{ height: 270, pl: 0, pr: 0 }}>
-                <Box className="flex">
-                  <Button
-                    className="shrink-0"
-                    component="label"
-                    role={undefined}
-                    variant="contained"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    選擇檔案
-                    <VisuallyHiddenInput
-                      type="file"
-                      onChange={handleFileChange}
-                    />
-                  </Button>
-                  {file && (
-                    <div class="flex flex-col ml-2 min-w-0">
-                      <FileIcon fontSize="small" color="disabled" />
-                      <Typography color="textDisabled" noWrap lineHeight="16px">
-                        {file.name}
-                      </Typography>
-                    </div>
-                  )}
-                </Box>
-              </TabPanel>
-            </TabContext>
+          <Box sx={{ opacity: 0.7 }}>
+            <History onItemClick={(item) => setCode(item.code)} />
           </Box>
-          <Box className="flex flex-row-reverse">
-            <Button
-              variant="contained"
-              disabled={(tab === 'text' && !text) || (tab === 'file' && !file)}
-              endIcon={<SendIcon />}
-              sx={{
-                pl: 3,
-                pr: 3,
-              }}
-              onClick={handleShare}
-            >
-              分享
-            </Button>
-          </Box>
-        </Container>
-      </Paper>
 
-      <Divider
-        sx={{
-          mt: 4,
-          mb: 2,
-        }}
-      />
-
-      <Box sx={{ opacity: 0.7 }}>
-        <History onItemClick={(item) => setCode(item.code)} />
-      </Box>
-
-      <Message {...messageProps} />
+          <Message {...messageProps} />
+        </Box>
+      </Container>
+      <Footer />
       <Backdrop
-        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={backdropOpen}
+        onClick={handleBackdropClose}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-    </Container>
+    </Box>
   )
 }

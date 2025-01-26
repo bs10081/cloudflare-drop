@@ -2,6 +2,7 @@ import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { dbMiddleware, limitMiddleware } from './middlewares'
 import { FileCreate, FileFetch, FileShareCodeFetch } from './files'
+import { version } from './version'
 
 import { scheduled } from './scheduled'
 
@@ -18,6 +19,11 @@ app.use('/files', limitMiddleware)
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
   docs_url: '/doc',
+})
+
+// Version endpoint
+openapi.get('/version', async () => {
+  return Response.json(version)
 })
 
 openapi.put('/files', FileCreate)
