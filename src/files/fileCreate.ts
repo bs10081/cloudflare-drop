@@ -46,89 +46,111 @@ export class FileCreate extends Endpoint {
   }
 
   async handle(c: Context) {
-    let data: ArrayBuffer | null = null
-    let filename: string
-    let type: string | null
-    let size: number = 0
-    const contentType = c.req.header('Content-Type')
-    if (
-      contentType?.startsWith('multipart/form-data') ||
-      contentType?.startsWith('application/x-www-form-urlencoded')
-    ) {
-      const formData = await c.req.formData()
-      const file = formData.get('file') as File
-      data = await file.arrayBuffer()
-      filename = file.name
-      type = file.type ?? mine.getType(filename) ?? 'text/plain'
-      size = file.size
-    } else {
-      const blob = await c.req.blob()
-      data = await blob.arrayBuffer()
-      filename = (blob as File)?.name ?? ''
-      type = blob.type
-      size = blob.size
-    }
+    try {
+      let data: ArrayBuffer | null = null
+      let filename: string = 'untitled'
+      let type: string | null = null
+      let size: number = 0
+      const contentType = c.req.header('Content-Type')
 
-    if (!data || data.byteLength === 0) {
-      return this.error('分享內容為空')
-    }
+      try {
+        if (
+          contentType?.startsWith('multipart/form-data') ||
+          contentType?.startsWith('application/x-www-form-urlencoded')
+        ) {
+          const formData = await c.req.formData()
+          const file = formData.get('file')
+          if (!file || !(file instanceof Blob)) {
+            return this.error('無效的檔案')
+          }
+          data = await file.arrayBuffer()
+          if (file instanceof File) {
+            filename = file.name || filename
+          }
+          type = file.type || mine.getType(filename) || 'application/octet-stream'
+          size = file.size
+        } else {
+          const blob = await c.req.blob()
+          data = await blob.arrayBuffer()
+          if (blob instanceof File) {
+            filename = blob.name || filename
+          }
+          type = blob.type || 'application/octet-stream'
+          size = blob.size
+        }
+      } catch (err) {
+        console.error('檔案處理錯誤:', err)
+        return this.error('檔案處理失敗')
+      }
 
-    const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
-    const kvLimit = Math.min((envMax || 10), 25) * 1024 * 1024 // 不能超過 25MB
-    if (size > kvLimit) {
-      return this.error(`檔案大於 ${kvLimit / 1024 / 1024}MB，請使用分片上傳功能`)
-    }
+      if (!data || data.byteLength === 0) {
+        return this.error('分享內容為空')
+      }
 
-    const kv = this.getKV(c)
-    const key = createId()
-    await kv.put(key, data)
-    const hash = await sha1(data)
+      const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
+      const kvLimit = Math.min((envMax || 10), 25) * 1024 * 1024 // 不能超過 25MB
+      if (size > kvLimit) {
+        return this.error(`檔案大於 ${kvLimit / 1024 / 1024}MB，請使用分片上傳功能`)
+      }
 
-    const db = this.getDB(c)
+      try {
+        const kv = this.getKV(c)
+        const key = createId()
+        await kv.put(key, data)
+        const hash = await sha1(data)
 
-    const shareCodeCreate = createId.init({
-      length: 6,
-    })
-
-    const shareCodes: Array<string> = new Array(10).fill(
-      shareCodeCreate().toUpperCase(),
-    )
-
-    const records = (
-      await db
-        .select({
-          code: files.code,
+        const db = this.getDB(c)
+        const shareCodeCreate = createId.init({
+          length: 6,
         })
-        .from(files)
-        .where(inArray(files.code, shareCodes))
-    ).map((d) => d.code)
 
-    const shareCode = shareCodes.find((d) => !records.includes(d))
+        const shareCodes: Array<string> = new Array(10).fill(
+          shareCodeCreate().toUpperCase(),
+        )
 
-    if (!shareCode) {
-      return this.error('分享碼產生失敗，請重試')
+        const records = (
+          await db
+            .select({
+              code: files.code,
+            })
+            .from(files)
+            .where(inArray(files.code, shareCodes))
+        ).map((d) => d.code)
+
+        const shareCode = shareCodes.find((d) => !records.includes(d))
+
+        if (!shareCode) {
+          return this.error('分享碼產生失敗，請重試')
+        }
+
+        const [due, dueType] = resolveDuration(c.env.SHARE_DURATION)
+        const dueDate = dayjs().add(due, dueType).toDate()
+
+        const insert: InsertFileType = {
+          objectId: key,
+          filename,
+          type,
+          hash,
+          code: shareCode,
+          due_date: dueDate,
+          size,
+          storage_type: 'kv',
+        }
+
+        const [record] = await db.insert(files).values(insert).returning({
+          hash: files.hash,
+          code: files.code,
+          due_date: files.due_date,
+        })
+
+        return this.success(record)
+      } catch (err) {
+        console.error('檔案儲存錯誤:', err)
+        return this.error('檔案儲存失敗')
+      }
+    } catch (err) {
+      console.error('未預期的錯誤:', err)
+      return this.error('系統錯誤')
     }
-
-    const [due, dueType] = resolveDuration(c.env.SHARE_DURATION)
-    const dueDate = dayjs().add(due, dueType).toDate()
-
-    const insert: InsertFileType = {
-      objectId: key,
-      filename,
-      type,
-      hash,
-      code: shareCode,
-      due_date: dueDate,
-      size,
-      storage_type: 'kv',
-    }
-
-    const [record] = await db.insert(files).values(insert).returning({
-      hash: files.hash,
-      code: files.code,
-      due_date: files.due_date,
-    })
-
-    return this.success(record)
   }
 }
