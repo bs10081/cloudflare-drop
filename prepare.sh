@@ -64,9 +64,6 @@ if [ -n "$vars" ]; then
   echo -e "vars = {$vars }" >> ./wrangler.toml
 fi
 
-# 確保目錄存在
-mkdir -p dist/web
-
 # Build web
 npm run build:web
 
