@@ -3,26 +3,18 @@ export interface FileType {
   code: string
   filename: string | null
   hash: string
-  due_date: string
+  due_date: number
   type: string | null
 }
 
 export interface FileUploadedType {
   hash: string
   code: string
-  due_date: string
-}
-
-export interface ChunkUploadedType {
-  uploadId?: string
-  chunkNumber?: number
-  hash?: string
-  code?: string
-  due_date?: string
+  due_date: number
 }
 
 export interface ApiResponseType<T> {
-  message: string
   result: boolean
+  message: string
   data: T | null
 } 
