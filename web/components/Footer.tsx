@@ -43,7 +43,7 @@ export function Footer() {
       }}
     >
       <Typography variant="caption" color="text.secondary">
-        Build Time: {formattedDate} (Cloudflare build 版本號)
+        ⛅️ wrangler {version.commitHash} (Build Time: {formattedDate})
       </Typography>
     </Box>
   )
