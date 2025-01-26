@@ -20,11 +20,13 @@ const openapi = fromHono(app, {
   docs_url: '/doc',
 })
 
+// 具體的檔案處理路由
 openapi.put('/files', FileCreate)
 openapi.put('/files/chunk', FileChunkCreate)
 openapi.get('/files/:id', FileFetch)
 openapi.get('/files/share/:code', FileShareCodeFetch)
 
+// 通用的錯誤處理路由，放在最後
 app.all(
   '/api/*',
   async () =>
@@ -35,10 +37,16 @@ app.all(
 
 app.all(
   '/files/*',
-  async () =>
-    new Response('Method Not Allowed', {
+  async (c) => {
+    // 檢查是否為已定義的路由
+    const path = new URL(c.req.url).pathname
+    const method = c.req.method
+    console.log('未匹配的請求:', { path, method })
+    
+    return new Response('Method Not Allowed', {
       status: 405,
-    }),
+    })
+  },
 )
 
 // Web
