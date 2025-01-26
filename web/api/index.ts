@@ -11,7 +11,7 @@ async function processResponse(response: Response) {
 export async function resolveFileByCode(
   code: string,
 ): Promise<ApiResponseType<FileType>> {
-  const response = await fetch(`/files/share/${code}`)
+  const response = await fetch(`/api/files/share/${code}`)
   return processResponse(response)
 }
 
@@ -20,7 +20,7 @@ export async function uploadFile(
 ): Promise<ApiResponseType<FileUploadedType>> {
   const formData = new FormData()
   formData.append('file', data)
-  const response = await fetch('/files', {
+  const response = await fetch('/api/files', {
     method: 'PUT',
     body: formData,
   })
@@ -28,6 +28,6 @@ export async function uploadFile(
 }
 
 export async function fetchPlainText(id: string): Promise<string> {
-  const response = await fetch(`/files/${id}`)
+  const response = await fetch(`/api/files/${id}`)
   return response.text()
 }
