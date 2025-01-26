@@ -76,7 +76,7 @@ export class FileCreate extends Endpoint {
     const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
     const kvLimit = Math.min((envMax || 10), 25) * 1024 * 1024 // 不能超過 25MB
     if (size > kvLimit) {
-      return this.error(`檔案大於 ${kvLimit / 1024 / 1024}MB，請使用分片上傳（R2 儲存）`)
+      return this.error(`檔案大於 ${kvLimit / 1024 / 1024}MB，請使用分片上傳功能`)
     }
 
     const kv = this.getKV(c)

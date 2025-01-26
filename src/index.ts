@@ -12,21 +12,29 @@ const app = new Hono<{
 
 // DB service
 app.use('/api/*', dbMiddleware)
-app.use('/api/files/*', dbMiddleware)
-app.use('/api/files', limitMiddleware)
+app.use('/files/*', dbMiddleware)
+app.use('/files', limitMiddleware)
 
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
   docs_url: '/doc',
 })
 
-openapi.put('/api/files', FileCreate)
-openapi.put('/api/files/chunk', FileChunkCreate)
-openapi.get('/api/files/:id', FileFetch)
-openapi.get('/api/files/share/:code', FileShareCodeFetch)
+openapi.put('/files', FileCreate)
+openapi.put('/files/chunk', FileChunkCreate)
+openapi.get('/files/:id', FileFetch)
+openapi.get('/files/share/:code', FileShareCodeFetch)
 
 app.all(
   '/api/*',
+  async () =>
+    new Response('Method Not Allowed', {
+      status: 405,
+    }),
+)
+
+app.all(
+  '/files/*',
   async () =>
     new Response('Method Not Allowed', {
       status: 405,

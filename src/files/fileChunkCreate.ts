@@ -1,4 +1,3 @@
-import { Context } from 'hono'
 import { z } from 'zod'
 import { createId } from '@paralleldrive/cuid2'
 import { eq } from 'drizzle-orm'
@@ -62,7 +61,7 @@ export class FileChunkCreate extends Endpoint {
       const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
       const kvLimit = Math.min((envMax || 10), 25) * 1024 * 1024 // 不能超過 25MB
       if (totalSize < kvLimit) {
-        return this.error(`檔案大小小於 ${kvLimit / 1024 / 1024}MB，請使用一般上傳（KV 儲存）`)
+        return this.error(`檔案大小小於 ${kvLimit / 1024 / 1024}MB，請使用一般上傳功能`)
       }
 
       const result = await this.initializeUpload(c, filename, totalSize)
