@@ -7,6 +7,11 @@ import {
 } from 'drizzle-zod'
 import { createId } from '@paralleldrive/cuid2'
 
+export const StorageType = {
+  KV: 'kv',
+  R2: 'r2',
+} as const
+
 export const files = sqliteTable('files', {
   id: text('id')
     .primaryKey()
@@ -17,6 +22,7 @@ export const files = sqliteTable('files', {
   hash: text('hash').notNull(), // hash 值
   code: text('code').notNull().unique(), // 分享码
   due_date: integer('due_date', { mode: 'timestamp' }).notNull(), // 过期时间
+  storage_type: text('storage_type', { enum: Object.values(StorageType) }).notNull().$default(() => StorageType.KV), // 存儲類型
 })
 
 export const fileSelectSchema = createSelectSchema(files)

@@ -6,7 +6,7 @@ import dayjs, { ManipulateType } from 'dayjs'
 import { inArray } from 'drizzle-orm'
 
 import { Endpoint } from '../endpoint'
-import { files, InsertFileType } from '../../data/schemas'
+import { files, InsertFileType, StorageType } from '../../data/schemas'
 
 const duration = ['day', 'week', 'month', 'year', 'hour', 'minute']
 
@@ -74,17 +74,33 @@ export class FileCreate extends Endpoint {
       return this.error('分享內容為空')
     }
 
-    const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
-    const max = Number.isNaN(envMax) || envMax <= 0 ? 10 : envMax
+    const maxFileSize = Number.parseInt(c.env.MAX_FILE_SIZE ?? '100', 10)
+    const kvSizeLimit = Number.parseInt(c.env.KV_SIZE_LIMIT ?? '25', 10)
 
-    if (size > max * 1024 * 1024) {
-      return this.error(`檔案大於 ${max}M`)
+    if (size > maxFileSize * 1024 * 1024) {
+      return this.error(`檔案大於 ${maxFileSize}MB`)
     }
 
-    const kv = this.getKV(c)
     const key = createId()
-    await kv.put(key, data)
     const hash = await sha1(data)
+
+    // 根據文件大小決定存儲位置
+    const storageType = size > kvSizeLimit * 1024 * 1024 ? StorageType.R2 : StorageType.KV
+
+    // 存儲文件
+    if (storageType === StorageType.KV) {
+      const kv = this.getKV(c)
+      await kv.put(key, data)
+    } else {
+      const r2 = c.env.FILE_STORAGE
+      await r2.put(key, data, {
+        customMetadata: {
+          filename,
+          type,
+          hash,
+        },
+      })
+    }
 
     const db = this.getDB(c)
 
@@ -121,6 +137,7 @@ export class FileCreate extends Endpoint {
       hash,
       code: shareCode,
       due_date: dueDate,
+      storage_type: storageType,
     }
 
     const [record] = await db.insert(files).values(insert).returning({
