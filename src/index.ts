@@ -11,7 +11,6 @@ const app = new Hono<{
 }>()
 
 // DB service
-app.use('/api/*', dbMiddleware)
 app.use('/files/*', dbMiddleware)
 app.use('/files', limitMiddleware)
 
@@ -27,14 +26,6 @@ openapi.get('/files/:id', FileFetch)
 openapi.get('/files/share/:code', FileShareCodeFetch)
 
 // 通用的錯誤處理路由，放在最後
-app.all(
-  '/api/*',
-  async () =>
-    new Response('Method Not Allowed', {
-      status: 405,
-    }),
-)
-
 app.all(
   '/files/*',
   async (c) => {

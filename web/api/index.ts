@@ -1,3 +1,5 @@
+import { ApiResponseType, FileType, FileUploadedType, ChunkUploadedType } from './types'
+
 async function processResponse(response: Response) {
   if (response.ok) return await response.json()
 
@@ -34,22 +36,20 @@ export async function uploadChunk(
   chunkNumber: number,
   totalChunks: number,
   uploadId?: string,
-): Promise<ApiResponseType<{ uploadId: string; chunkNumber: number } | { hash: string; code: string; due_date: Date }>> {
+): Promise<ApiResponseType<ChunkUploadedType>> {
   const formData = new FormData()
   formData.append('chunk', chunk)
   
-  const params = new URLSearchParams({
-    filename,
-    totalSize: totalSize.toString(),
-    chunkNumber: chunkNumber.toString(),
-    totalChunks: totalChunks.toString(),
-  })
-  
+  const url = new URL('/files/chunk', window.location.origin)
+  url.searchParams.set('filename', filename)
+  url.searchParams.set('totalSize', totalSize.toString())
+  url.searchParams.set('chunkNumber', chunkNumber.toString())
+  url.searchParams.set('totalChunks', totalChunks.toString())
   if (uploadId) {
-    params.append('uploadId', uploadId)
+    url.searchParams.set('uploadId', uploadId)
   }
   
-  const response = await fetch(`/files/chunk?${params}`, {
+  const response = await fetch(url.toString(), {
     method: 'PUT',
     body: formData,
   })
