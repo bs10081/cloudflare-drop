@@ -44,13 +44,13 @@ export class FileFetch extends Endpoint {
     const kv = this.getKV(c)
     const tokenValue = await kv.get(token, 'text')
     if (!tokenValue || tokenValue !== token) {
-      return this.error('无效的 token', true)
+      return this.error('INVALID_TOKEN', true)
     }
     await kv.delete(token)
     const db = this.getDB(c)
     const [record] = await db.select().from(files).where(eq(files.id, id))
     if (!record) {
-      return this.error('无效的 object id', true)
+      return this.error('INVALID_OBJECT_ID', true)
     }
     const objectId = record.objectId
 

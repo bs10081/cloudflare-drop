@@ -25,7 +25,7 @@ import LockClose from '@mui/icons-material/Lock'
 
 import { Layout, LayoutProps } from '../../components'
 import { createAdminApi } from '../../api'
-import { humanFileSize } from '../../helpers'
+import { humanFileSize, mapError } from '../../helpers'
 import dayjs from 'dayjs'
 import { ComponentChildren } from 'preact'
 import { useDialogs } from '@toolpad/core/useDialogs'
@@ -257,7 +257,7 @@ const AdminMain = observer((props: AdminProps) => {
       setRows(items)
       setSelected([])
     } else {
-      message.error(response.message)
+      message.error(mapError(response.message))
     }
     setBackdropOpen(false)
   }
@@ -329,7 +329,7 @@ const AdminMain = observer((props: AdminProps) => {
         setPage(0)
         await fetchList(0)
       } else {
-        message.error(data.message)
+        message.error(mapError(data.message))
         setBackdropOpen(false)
       }
     }

@@ -120,14 +120,14 @@ export class FileCreate extends Endpoint {
       (!data || data.byteLength === 0) &&
       (!objectId || (Array.isArray(objectId) && !objectId.length))
     ) {
-      return this.error('分享内容为空')
+      return this.error('EMPTY_CONTENT')
     }
 
     const envMax = Number.parseInt(c.env.SHARE_MAX_SIZE_IN_MB, 10)
     const max = Number.isNaN(envMax) || envMax <= 0 ? 10 : envMax
 
     if (size > max * 1000 * 1000) {
-      return this.error(`文件大于 ${max}M`)
+      return this.error('FILE_TOO_LARGE')
     }
 
     const kv = this.getKV(c)
@@ -140,7 +140,7 @@ export class FileCreate extends Endpoint {
     } else if (typeof objectId === 'string') {
       const cacheFile = await kv.get(objectId, 'stream')
       if (!cacheFile) {
-        return this.error('分片上传的文件不存在')
+        return this.error('CHUNK_NOT_FOUND')
       }
       // 分片存储
     } else if (Array.isArray(objectId) && objectId.length) {
@@ -172,7 +172,7 @@ export class FileCreate extends Endpoint {
     const shareCode = shareCodes.find((d) => !records.includes(d))
 
     if (!shareCode) {
-      return this.error('分享码生成失败，请重试')
+      return this.error('CODE_GENERATION_FAILED')
     }
 
     const [due, dueType] = resolveDuration(duration || c.env.SHARE_DURATION)

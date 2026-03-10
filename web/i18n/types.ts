@@ -83,5 +83,14 @@ export interface TranslationKeys {
     integrityCheckFailed: string
     chunkInfoFailed: string
     suggestR2: string
+    invalidCode: string
+    shareExpired: string
+    emptyContent: string
+    fileTooLarge: string
+    chunkNotFound: string
+    codeGenerationFailed: string
+    invalidToken: string
+    invalidObjectId: string
+    unknownError: string
   }
 }

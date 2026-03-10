@@ -67,12 +67,12 @@ export class FileShareCodeFetch extends Endpoint {
     const file = await getFile(db, code)
 
     if (!file) {
-      return this.error('分享码无效')
+      return this.error('INVALID_CODE')
     }
 
     const day = dayjs(file.due_date)
     if (day.isBefore(dayjs())) {
-      return this.error('分享已过期')
+      return this.error('SHARE_EXPIRED')
     }
 
     const { objectId, ...rest } = file

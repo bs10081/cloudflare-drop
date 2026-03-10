@@ -35,6 +35,7 @@ import {
 import { resolveFileByCode, uploadFile } from '../../api'
 import { Layout, LayoutProps } from '../../components'
 import { useTranslation } from '../../i18n'
+import { mapError } from '../../helpers'
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -116,7 +117,7 @@ const AppMain = observer((props: LayoutProps) => {
       const data = await resolveFileByCode(code)
       handleBackdropClose()
       if (!data.result || !data.data) {
-        message.error(data.message)
+        message.error(mapError(data.message))
         return
       }
       // 打开弹窗
@@ -129,7 +130,7 @@ const AppMain = observer((props: LayoutProps) => {
         .then(reset.current)
     } catch (e) {
       const data = (e as { message: string }).message || JSON.stringify(e)
-      message.error(data)
+      message.error(mapError(data))
       handleBackdropClose()
     }
   })
@@ -175,7 +176,7 @@ const AppMain = observer((props: LayoutProps) => {
       )
       handleProgressClose()
       if (!uploaded.result || !uploaded.data) {
-        message.error(uploaded.message)
+        message.error(mapError(uploaded.message))
         return
       }
       historyApi.insertShared(uploaded.data.code, tab === 'file')
@@ -184,7 +185,7 @@ const AppMain = observer((props: LayoutProps) => {
         .then(reset.current)
     } catch (e) {
       const data = (e as { message: string }).message || JSON.stringify(e)
-      message.error(data)
+      message.error(mapError(data))
       handleProgressClose()
     }
   }
