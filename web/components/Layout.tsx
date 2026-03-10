@@ -9,6 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 
 import { Message, useMessage, Github } from './'
+import { LanguageSwitch } from '../i18n'
 
 export interface LayoutProps {
   children?: ComponentChildren
@@ -58,16 +59,15 @@ export function Layout({ children }: LayoutProps) {
               </span>
             </Typography>
           </Link>
-          <IconButton
-            sx={{
-              position: 'relative',
-              top: -10,
-            }}
-            href="https://github.com/oustn/cloudflare-drop"
-            target="_blank"
-          >
-            <Github />
-          </IconButton>
+          <Box className="flex items-center gap-2 flex-shrink-0">
+            <LanguageSwitch />
+            <IconButton
+              href="https://github.com/oustn/cloudflare-drop"
+              target="_blank"
+            >
+              <Github />
+            </IconButton>
+          </Box>
         </Box>
         {injectedChildren}
       </div>

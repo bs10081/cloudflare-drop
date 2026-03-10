@@ -1,4 +1,5 @@
 import { useEffect } from 'preact/hooks'
+import { observer } from 'mobx-react-lite'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
@@ -6,6 +7,8 @@ import { useState } from 'preact/hooks'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import { ManipulateType } from 'dayjs'
+
+import { useTranslation } from '../../../i18n'
 
 interface DurationProps {
   value?: string
@@ -16,41 +19,6 @@ const DEFAULT_VALUE = 'default'
 const MAX_VALUE = '999year'
 
 const duration = ['day', 'week', 'month', 'year', 'hour', 'minute']
-// `minute`, `hour`, `day`, `week`, `month`, `year`
-const CONFIG = [
-  {
-    label: '默认',
-    value: DEFAULT_VALUE,
-  },
-  {
-    label: '分钟',
-    value: 'minute',
-  },
-  {
-    label: '小时',
-    value: 'hour',
-  },
-  {
-    label: '天',
-    value: 'day',
-  },
-  {
-    label: '周',
-    value: 'week',
-  },
-  {
-    label: '月',
-    value: 'month',
-  },
-  {
-    label: '年',
-    value: 'year',
-  },
-  {
-    label: '永久有效',
-    value: '999year',
-  },
-]
 
 function resolveDuration(str: string): [number, ManipulateType] {
   const match = new RegExp(`^(\\d+)(${duration.join('|')})$`).exec(str)
@@ -60,8 +28,45 @@ function resolveDuration(str: string): [number, ManipulateType] {
   return [Number.parseInt(match[1], 10), match[2] as ManipulateType]
 }
 
-export function Duration(props: DurationProps) {
+export const Duration = observer((props: DurationProps) => {
+  const { t } = useTranslation()
   const { value = '', onChange } = props
+
+  // 動態生成 CONFIG
+  const CONFIG = [
+    {
+      label: t('duration', 'default'),
+      value: DEFAULT_VALUE,
+    },
+    {
+      label: t('duration', 'minute'),
+      value: 'minute',
+    },
+    {
+      label: t('duration', 'hour'),
+      value: 'hour',
+    },
+    {
+      label: t('duration', 'day'),
+      value: 'day',
+    },
+    {
+      label: t('duration', 'week'),
+      value: 'week',
+    },
+    {
+      label: t('duration', 'month'),
+      value: 'month',
+    },
+    {
+      label: t('duration', 'year'),
+      value: 'year',
+    },
+    {
+      label: t('duration', 'permanent'),
+      value: '999year',
+    },
+  ]
 
   const [count, updateCount] = useState(0)
   const [type, updateType] = useState(DEFAULT_VALUE)
@@ -168,8 +173,8 @@ export function Duration(props: DurationProps) {
           </Select>
         </Box>
       }
-      label="过期配置"
+      label={t('duration', 'expiryConfig')}
       labelPlacement="start"
     />
   )
-}
+})

@@ -26,7 +26,12 @@ export default function AppTheme({ children, mode }: AppThemeProps) {
     },
   })
   return (
-    <ThemeProvider theme={theme} disableTransitionOnChange noSsr defaultMode={mode}>
+    <ThemeProvider
+      theme={theme}
+      disableTransitionOnChange
+      noSsr
+      defaultMode={mode}
+    >
       {children}
     </ThemeProvider>
   )

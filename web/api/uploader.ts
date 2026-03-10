@@ -1,5 +1,6 @@
 import axios, { AxiosProgressEvent } from 'axios'
 import { getUserUUID } from '../helpers'
+import { i18nStore } from '../i18n'
 
 interface ChunkInfo {
   sha: string
@@ -89,7 +90,7 @@ export class Uploader {
       const { data } = await axios.put('/files', formData)
       return data as ApiResponseType<FileUploadedType>
     }
-    throw new Error('建议使用 R2')
+    throw new Error(i18nStore.t('errors', 'suggestR2'))
   }
 
   static async uploadWithChunk(
@@ -231,7 +232,7 @@ export class Uploader {
     const data: ApiResponseType<ChunkInfo> = await response.json()
 
     if (!data.result) {
-      throw new Error('获取分片信息失败')
+      throw new Error(i18nStore.t('errors', 'chunkInfoFailed'))
     }
     return data.data!
   }

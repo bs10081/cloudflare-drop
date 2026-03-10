@@ -1,4 +1,5 @@
 import { useState, useRef } from 'preact/hooks'
+import { observer } from 'mobx-react-lite'
 import { useDialogs } from '@toolpad/core/useDialogs'
 import Container from '@mui/material/Container'
 import Paper from '@mui/material/Paper'
@@ -33,6 +34,7 @@ import {
 } from './components'
 import { resolveFileByCode, uploadFile } from '../../api'
 import { Layout, LayoutProps } from '../../components'
+import { useTranslation } from '../../i18n'
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -49,7 +51,8 @@ const VisuallyHiddenInput = styled('input')({
 const envMax = Number.parseInt(import.meta.env.SHARE_MAX_SIZE_IN_MB, 10)
 const MAX_SIZE = Number.isNaN(envMax) || envMax <= 0 ? 10 : envMax
 
-export function AppMain(props: LayoutProps) {
+const AppMain = observer((props: LayoutProps) => {
+  const { t } = useTranslation()
   const setBackdropOpen = props.setBackdropOpen!
   const message = props.message!
   const [tab, setTab] = useState('text')
@@ -141,7 +144,7 @@ export function AppMain(props: LayoutProps) {
     const target: HTMLInputElement = e.target as HTMLInputElement
     const file = target?.files?.[0] ?? null
     if (file && file.size > MAX_SIZE * 1000 * 1000) {
-      message.error(`文件大于 ${MAX_SIZE}M`)
+      message.error(t('home', 'fileTooLarge', { size: MAX_SIZE }))
       ;(e.target as HTMLInputElement).value = ''
       return
     }
@@ -209,8 +212,12 @@ export function AppMain(props: LayoutProps) {
             })}
           >
             <InputLabel>
-              <Typography variant="h4" align="left">
-                分享码：
+              <Typography
+                variant="h5"
+                align="left"
+                sx={{ whiteSpace: 'nowrap' }}
+              >
+                {t('home', 'shareCode')}
               </Typography>
             </InputLabel>
             <Code
@@ -233,8 +240,8 @@ export function AppMain(props: LayoutProps) {
                   onChange={handleChangeTab}
                   aria-label="lab API tabs example"
                 >
-                  <Tab label="文本分享" value="text" />
-                  <Tab label="文件分享" value="file" />
+                  <Tab label={t('home', 'textShare')} value="text" />
+                  <Tab label={t('home', 'fileShare')} value="file" />
                 </TabList>
               </Box>
               <TabPanel value="text" sx={{ height: 230, pl: 0, pr: 0 }}>
@@ -256,7 +263,7 @@ export function AppMain(props: LayoutProps) {
                     tabIndex={-1}
                     startIcon={<CloudUploadIcon />}
                   >
-                    选择文件
+                    {t('home', 'selectFile')}
                     <VisuallyHiddenInput
                       type="file"
                       onChange={handleFileChange}
@@ -285,7 +292,7 @@ export function AppMain(props: LayoutProps) {
                   onChange={handleChangeEphemeral}
                 />
               }
-              label="阅后即焚"
+              label={t('home', 'burnAfterRead')}
             />
           </Box>
           <Box className="flex flex-row-reverse justify-between">
@@ -303,11 +310,11 @@ export function AppMain(props: LayoutProps) {
                 }}
                 onClick={handleShare}
               >
-                分享
+                {t('common', 'share')}
               </Button>
             </div>
             <Button variant="text" color="primary" onClick={toggleDrawer(true)}>
-              历史记录
+              {t('home', 'history')}
               <ReceiptLongIcon fontSize="small" />
             </Button>
           </Box>
@@ -325,7 +332,7 @@ export function AppMain(props: LayoutProps) {
       <Progress open={progress !== null} value={progress ?? 0} />
     </>
   )
-}
+})
 export function Home() {
   return (
     <Layout>

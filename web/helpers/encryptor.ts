@@ -1,5 +1,6 @@
 // @ts-expect-error sub module
 import { ArgonType, hash } from 'argon2-browser/dist/argon2-bundled.min.js'
+import { i18nStore } from '../i18n'
 
 export class Encryptor {
   private static HEADER_METADATA_SIZE = 4 // 增加版本信息（2 字节）
@@ -91,7 +92,8 @@ export class Encryptor {
       ),
     )
     const version = new DataView(header.buffer).getUint16(0, true)
-    if (version !== this.VERSION) throw new Error('版本不匹配')
+    if (version !== this.VERSION)
+      throw new Error(i18nStore.t('errors', 'versionMismatch'))
 
     const salt = header.slice(
       Encryptor.VERSION_LENGTH,
@@ -136,7 +138,7 @@ export class Encryptor {
       encryptedData,
     )
     if (!this.compareBuffers(dataHash, recalculatedHash)) {
-      throw new Error('数据完整性校验失败')
+      throw new Error(i18nStore.t('errors', 'integrityCheckFailed'))
     }
 
     return new Blob([decryptedData])

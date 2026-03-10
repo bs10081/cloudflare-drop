@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useEffect, useState } from 'preact/hooks'
+import { observer } from 'mobx-react-lite'
 import { alpha } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Table from '@mui/material/Table'
@@ -28,6 +29,7 @@ import { humanFileSize } from '../../helpers'
 import dayjs from 'dayjs'
 import { ComponentChildren } from 'preact'
 import { useDialogs } from '@toolpad/core/useDialogs'
+import { useTranslation } from '../../i18n'
 
 function Div(props: { children?: ComponentChildren }) {
   return <div>{props.children}</div>
@@ -43,46 +45,51 @@ interface HeadCell {
   tooltip?: string
 }
 
-const headCells: readonly HeadCell[] = [
-  {
-    disablePadding: true,
-    label: '文件名',
-  },
-  {
-    disablePadding: false,
-    label: '分享码',
-    width: 150,
-  },
-  {
-    id: 'size',
-    disablePadding: false,
-    label: '大小',
-    tooltip: '使用二进制单位：1 MiB = 1024 × 1024 字节，与 macOS 显示略有不同',
-    width: 150,
-  },
-  {
-    id: 'due_date',
-    disablePadding: false,
-    label: '有效期至',
-    width: 150,
-  },
-  {
-    disablePadding: true,
-    label: '是否加密',
-    width: 100,
-  },
-  {
-    id: 'created_at',
-    disablePadding: false,
-    label: '创建时间',
-    width: 150,
-  },
-  {
-    disablePadding: true,
-    label: '操作',
-    width: 100,
-  },
-]
+// 動態生成表頭（需要使用 t() 函數）
+function createHeadCells(
+  t: ReturnType<typeof useTranslation>['t'],
+): readonly HeadCell[] {
+  return [
+    {
+      disablePadding: true,
+      label: t('admin', 'filename'),
+    },
+    {
+      disablePadding: false,
+      label: t('admin', 'shareCode'),
+      width: 150,
+    },
+    {
+      id: 'size',
+      disablePadding: false,
+      label: t('admin', 'size'),
+      tooltip: t('admin', 'sizeTooltip'),
+      width: 150,
+    },
+    {
+      id: 'due_date',
+      disablePadding: false,
+      label: t('admin', 'expiryDate'),
+      width: 150,
+    },
+    {
+      disablePadding: true,
+      label: t('admin', 'isEncrypted'),
+      width: 100,
+    },
+    {
+      id: 'created_at',
+      disablePadding: false,
+      label: t('admin', 'createdAt'),
+      width: 150,
+    },
+    {
+      disablePadding: true,
+      label: t('admin', 'actions'),
+      width: 100,
+    },
+  ]
+}
 
 interface EnhancedTableProps {
   numSelected: number
@@ -91,9 +98,10 @@ interface EnhancedTableProps {
   order: Order
   orderBy: string
   rowCount: number
+  headCells: readonly HeadCell[]
 }
 
-function EnhancedTableHead(props: EnhancedTableProps) {
+const EnhancedTableHead = observer((props: EnhancedTableProps) => {
   const {
     onSelectAllClick,
     order,
@@ -101,6 +109,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     numSelected,
     rowCount,
     onRequestSort,
+    headCells,
   } = props
   const createSortHandler = (property?: keyof FileType) => () => {
     if (property) {
@@ -154,14 +163,15 @@ function EnhancedTableHead(props: EnhancedTableProps) {
       </TableRow>
     </TableHead>
   )
-}
+})
 
 interface EnhancedTableToolbarProps {
   numSelected: number
   onDelete: (event: Event) => void
 }
 
-function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
+const EnhancedTableToolbar = observer((props: EnhancedTableToolbarProps) => {
+  const { t } = useTranslation()
   const { numSelected } = props
 
   return (
@@ -188,7 +198,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           variant="subtitle1"
           component="div"
         >
-          选中 {numSelected}
+          {t('admin', 'selected', { count: numSelected })}
         </Typography>
       ) : (
         <Typography
@@ -201,7 +211,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         </Typography>
       )}
       {numSelected > 0 && (
-        <Tooltip title="批量删除">
+        <Tooltip title={t('admin', 'deleteSelected')}>
           <IconButton onClick={props.onDelete}>
             <DeleteIcon />
           </IconButton>
@@ -209,7 +219,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       )}
     </Toolbar>
   )
-}
+})
 
 interface AdminProps extends LayoutProps {
   token: string
@@ -217,7 +227,9 @@ interface AdminProps extends LayoutProps {
 
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
-function AdminMain(props: AdminProps) {
+const AdminMain = observer((props: AdminProps) => {
+  const { t } = useTranslation()
+  const headCells = createHeadCells(t)
   const setBackdropOpen = props.setBackdropOpen!
   const message = props.message!
   const token = props.token
@@ -305,14 +317,11 @@ function AdminMain(props: AdminProps) {
 
   const createRemoveHandler = (id?: string) => async (event: Event) => {
     event.stopPropagation()
-    const confirmed = await dialogs.confirm(
-      '删除后无法恢复，请确认是否删除？',
-      {
-        okText: '确认',
-        cancelText: '取消',
-        title: !id ? '批量删除' : '删除分享',
-      },
-    )
+    const confirmed = await dialogs.confirm(t('history', 'deleteConfirm'), {
+      okText: t('common', 'confirm'),
+      cancelText: t('common', 'cancel'),
+      title: !id ? t('admin', 'deleteSelected') : t('admin', 'shareCode'),
+    })
     if (confirmed) {
       setBackdropOpen(true)
       const data = await adminApi.delete(id ?? selected)
@@ -355,6 +364,7 @@ function AdminMain(props: AdminProps) {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
+              headCells={headCells}
             />
             <TableBody>
               {rows.map((row, index) => {
@@ -455,9 +465,8 @@ function AdminMain(props: AdminProps) {
         <TablePagination
           className="flex-shrink-0"
           labelDisplayedRows={({ from, to, count }) =>
-            `${from} - ${to} 共 ${count} 条`
+            `${from} - ${to} / ${count}`
           }
-          labelRowsPerPage="分页大小"
           rowsPerPageOptions={[10]}
           component="div"
           count={total}
@@ -469,7 +478,7 @@ function AdminMain(props: AdminProps) {
       </Paper>
     </Box>
   )
-}
+})
 
 export function Admin() {
   const { params } = useRoute()
